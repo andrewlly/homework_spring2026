@@ -67,6 +67,7 @@ env = {
     image=image,
     gpu=DEFAULT_GPU,
     cpu=DEFAULT_CPU,
+    secrets=[modal.Secret.from_name("wandb-secret")]
 )
 def train_remote(*args: str) -> None:
     defaults = TrainConfig()
