@@ -81,7 +81,7 @@ class PGAgent(nn.Module):
 
         # step 3: use all datapoints (s_t, a_t, adv_t) to update the PG actor/policy
         # TODO: update the PG actor/policy network once using the advantages
-        info: dict = self.actor.update(obs, actions, advantages, q_values)
+        info: dict = self.actor.update(obs, actions, advantages)
 
         # step 4: if needed, use all datapoints (s_t, a_t, q_t) to update the PG critic/baseline
         if self.critic is not None:
@@ -89,9 +89,9 @@ class PGAgent(nn.Module):
             c_loss = []
             for _ in range(self.baseline_gradient_steps):
                 loss = self.critic.update(obs, q_values)
-                c_loss.append(loss)
+                c_loss.append(loss["Baseline Loss"])
 
-            info["c_loss"] = np.mean(c_loss)
+            info["Critic Loss"] = np.mean(c_loss)
 
         return info
 
@@ -158,7 +158,7 @@ class PGAgent(nn.Module):
         else:
             # TODO: run the critic and use it as a baseline
 
-            values = self.critic(ptu.from_numpy(obs)).squeeze().cpu().numpy()
+            values = self.critic(ptu.from_numpy(obs)).squeeze().detach().cpu().numpy()
             assert values.shape == q_values.shape
 
             if self.gae_lambda is None:
